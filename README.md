@@ -336,8 +336,6 @@ OLLAMA_MODEL=qwen3.5:9b
 OLLAMA_HOST=http://localhost:11434
 ```
 
-Do not commit `.env` or API keys to the repository.
-
 ### 6. Run database migrations
 
 ```bash
