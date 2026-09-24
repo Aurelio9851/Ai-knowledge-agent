@@ -416,7 +416,10 @@ def test_search(
 # ---------------------------------------------------------
 # Chat / RAG
 # ---------------------------------------------------------
-
+@patch(
+    "app.main.route_question",
+    return_value="DOCUMENT",
+)
 @patch("app.main.build_sources")
 @patch("app.main.generate_rag_response")
 @patch("app.main.retrieve_chunks")
@@ -426,6 +429,7 @@ def test_chat(
     mock_retrieve_chunks,
     mock_generate_response,
     mock_build_sources,
+    mock_route_question,
     client,
 ):
     mock_create_embedding.return_value = [
@@ -478,23 +482,32 @@ def test_chat(
         "The answer is based on the document."
     )
 
-    assert len(data["sources"]) == 1
+    assert data["sources"] == [
+        {
+            "document_id": 1,
+            "filename": "test.txt",
+            "chunk_id": 10,
+            "chunk_index": 0,
+            "score": 0.95,
+        }
+    ]
 
-    assert data["sources"][0]["document_id"] == 1
-    assert data["sources"][0]["chunk_id"] == 10
+    mock_route_question.assert_called_once_with(
+        "What does the document say?"
+    )
 
     mock_create_embedding.assert_called_once_with(
         "What does the document say?"
     )
 
-    mock_generate_response.assert_called_once_with(
-        "What does the document say?",
-        chunks,
-    )
+    mock_retrieve_chunks.assert_called_once()
 
-    mock_build_sources.assert_called_once_with(
-        chunks
-    )
+    call_args = mock_retrieve_chunks.call_args
+
+    assert call_args.args[0] == [0.1] * 384
+
+    mock_generate_response.assert_called_once()
+    mock_build_sources.assert_called_once_with(chunks)
 
 
 # ---------------------------------------------------------
