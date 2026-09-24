@@ -1,14 +1,5 @@
 Sì. Visto che ora abbiamo aggiunto il **query router**, aggiornerei README in tre punti principali:
 
-1. Architettura: Router prima del RAG.
-2. Question answering: distinguere `GENERAL` e `DOCUMENT`.
-3. Features / struttura: aggiungere il router.
-
-Ti lascio direttamente il **README completo aggiornato**, mantenendo il resto sostanzialmente invariato.
-
-````markdown
-# AI Knowledge Agent
-
 A full-stack AI knowledge assistant built around a Retrieval-Augmented Generation (RAG) pipeline with an intelligent query routing layer.
 
 The application allows users to upload documents, process them into searchable chunks, retrieve relevant information using vector similarity search, and ask questions about the stored knowledge base.
