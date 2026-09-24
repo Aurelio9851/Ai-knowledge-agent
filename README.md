@@ -636,21 +636,6 @@ The test suite covers:
 
 The test suite uses a dedicated PostgreSQL test database and mocks external services where appropriate.
 
-## Future Improvements
-
-See [`FUTURE_IMPROVEMENTS.txt`](FUTURE_IMPROVEMENTS.txt) for documented improvements and known architectural limitations.
-
-Potential future work includes:
-
-* stronger PostgreSQL/Pinecone consistency guarantees;
-* retry and reconciliation mechanisms;
-* improved observability;
-* authentication and authorization;
-* hybrid search and reranking;
-* RAG evaluation;
-* improved query routing and intent classification;
-* production deployment;
-* frontend improvements.
 
 ## License
 

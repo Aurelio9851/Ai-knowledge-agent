@@ -1,0 +1,133 @@
+AI Knowledge Agent - Future Improvements
+========================================
+
+1. PostgreSQL / Pinecone consistency
+------------------------------------
+PostgreSQL and Pinecone do not share a distributed transaction.
+
+Edge cases may leave the two systems temporarily inconsistent if one operation
+succeeds and the other fails.
+
+Examples:
+- Pinecone deletion succeeds but PostgreSQL commit fails.
+- PostgreSQL commit succeeds but Pinecone operation fails.
+- Pinecone upsert succeeds but PostgreSQL commit fails.
+
+Possible future improvements:
+- Compensating transactions.
+- Retry mechanisms.
+- Transactional outbox pattern.
+- Background reconciliation jobs.
+- Periodic consistency checks between PostgreSQL and Pinecone.
+
+
+2. Document update consistency
+------------------------------
+The current update flow deletes the existing Pinecone vectors before the new
+document has been fully processed.
+
+If embedding generation or Pinecone upsert fails after the old vectors have
+been deleted, PostgreSQL can roll back while Pinecone remains without the
+previous vectors.
+
+Possible future improvements:
+- Generate and upload new vectors before deleting the old ones.
+- Introduce document/vector versions.
+- Use deterministic vector IDs.
+- Delete obsolete vectors only after the new version is successfully stored.
+
+
+3. Orphaned Pinecone vectors
+----------------------------
+If Pinecone successfully stores vectors but the PostgreSQL transaction fails,
+the vectors may remain without a corresponding document.
+
+Possible future improvements:
+- Periodic orphan-vector detection.
+- Reconciliation between PostgreSQL and Pinecone.
+- Metadata/version tracking.
+
+
+4. Retry and resilience
+-----------------------
+External services such as Pinecone and Ollama can temporarily fail.
+
+Possible future improvements:
+- Exponential backoff.
+- Configurable retry policies.
+- Circuit breaker pattern.
+- More granular error handling.
+
+
+5. Observability
+----------------
+Current logging is basic.
+
+Possible future improvements:
+- Structured logging.
+- Request IDs / correlation IDs.
+- Latency metrics.
+- Retrieval metrics.
+- LLM latency and token usage tracking.
+- Error monitoring.
+
+
+6. Authentication and authorization
+----------------------------------
+The current API does not implement authentication.
+
+Possible future improvements:
+- User authentication.
+- API keys or JWT.
+- Document ownership.
+- Per-user retrieval isolation.
+
+
+7. API validation
+-----------------
+Additional validation could be introduced for:
+- Empty document content.
+- Empty search queries.
+- Empty chat questions.
+- Filename validation.
+- More restrictive upload validation.
+
+
+8. Production deployment
+------------------------
+The current project is designed primarily as a portfolio/development project.
+
+Possible future improvements:
+- Production Docker setup.
+- Separate development/test/production configurations.
+- Reverse proxy.
+- HTTPS.
+- Secrets management.
+- CI/CD pipeline.
+- Horizontal scaling.
+
+
+9. RAG improvements
+-------------------
+Current RAG uses vector similarity retrieval followed by direct context
+generation.
+
+Possible future improvements:
+- Reranking.
+- Hybrid search (keyword + vector).
+- Query rewriting.
+- Context compression.
+- Better chunking strategies.
+- Conversation memory.
+- Evaluation datasets and RAG metrics.
+
+
+10. Testing
+-----------
+The current pytest suite covers the main backend functionality.
+
+Possible future improvements:
+- More integration tests.
+- End-to-end tests using real Pinecone/Ollama services.
+- Load testing.
+- Automated API contract testing.
