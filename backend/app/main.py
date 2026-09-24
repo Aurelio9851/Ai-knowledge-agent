@@ -8,7 +8,10 @@ from .chunking import chunk_text, retrieve_chunks
 from .rag import generate_rag_response, build_sources
 from .embeddings import create_embeddings, create_embedding
 from .config import settings
-from .pinecone_client import index, delete_document_vectors
+from .pinecone_client import (
+    upsert_vectors,
+    delete_document_vectors,
+)
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 from .router import route_question
@@ -192,7 +195,7 @@ def update_document(
             })
 
         # 8. Upsert new vectors
-        index.upsert(vectors=vectors)
+        upsert_vectors(vectors)
 
         # 9. Commit PostgreSQL
         db.commit()
@@ -309,8 +312,7 @@ def upload_document(
                 },
             })
 
-        index.upsert(vectors=vectors)
-
+        upsert_vectors(vectors)
         db.commit()
         db.refresh(new_document)
 

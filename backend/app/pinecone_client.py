@@ -1,11 +1,23 @@
-from .config import settings
 from pinecone import Pinecone
+
+from .config import settings
+
 
 pc = Pinecone(
     api_key=settings.pinecone_api_key
 )
 
-index = pc.Index("ai-knowledge-agent")
+_index = None
+
+
+def get_index():
+    global _index
+
+    if _index is None:
+        _index = pc.Index("ai-knowledge-agent")
+
+    return _index
+
 
 def search_vectors(
     query_embedding: list[float],
@@ -25,11 +37,15 @@ def search_vectors(
             }
         }
 
-    return index.query(**query_kwargs)
+    return get_index().query(**query_kwargs)
+
+
+def upsert_vectors(vectors):
+    get_index().upsert(vectors=vectors)
 
 
 def delete_document_vectors(document_id: int):
-    index.delete(
+    get_index().delete(
         filter={
             "document_id": document_id,
         }

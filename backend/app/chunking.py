@@ -1,7 +1,7 @@
 
 from .models import Document, DocumentChunk
 from sqlalchemy.orm import Session
-from .pinecone_client import index, search_vectors
+from .pinecone_client import search_vectors
 from .ollama_client import generate_response
 
 

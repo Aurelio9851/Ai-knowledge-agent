@@ -1,11 +1,17 @@
-from unittest.mock import ANY, patch
+from unittest.mock import patch
+
 from app.config import settings
 
 
 @patch("app.main.generate_rag_response")
 @patch("app.main.retrieve_chunks")
 @patch("app.main.create_embedding")
+@patch(
+    "app.main.route_question",
+    return_value="DOCUMENT",
+)
 def test_chat_success(
+    mock_route_question,
     mock_create_embedding,
     mock_retrieve_chunks,
     mock_generate_rag_response,
@@ -47,6 +53,10 @@ def test_chat_success(
         "This is the answer. [Source 1]"
     )
 
+    mock_route_question.assert_called_once_with(
+        "What is this document about?"
+    )
+
     mock_create_embedding.assert_called_once_with(
         "What is this document about?"
     )
@@ -56,8 +66,11 @@ def test_chat_success(
     call_args = mock_retrieve_chunks.call_args
 
     assert call_args.args[0] == [0.1] * 384
-    assert call_args.kwargs["top_k"] == 5
-    assert call_args.kwargs["score_threshold"] == 0.3
+    assert call_args.kwargs["top_k"] == settings.retrieval_top_k
+    assert (
+        call_args.kwargs["score_threshold"]
+        == settings.retrieval_score_threshold
+    )
     assert call_args.kwargs["document_ids"] == []
 
     mock_generate_rag_response.assert_called_once_with(
@@ -65,10 +78,16 @@ def test_chat_success(
         mock_retrieve_chunks.return_value,
     )
 
+
 @patch("app.main.generate_rag_response")
 @patch("app.main.retrieve_chunks")
 @patch("app.main.create_embedding")
+@patch(
+    "app.main.route_question",
+    return_value="DOCUMENT",
+)
 def test_chat_without_results(
+    mock_route_question,
     mock_create_embedding,
     mock_retrieve_chunks,
     mock_generate_rag_response,
@@ -76,6 +95,7 @@ def test_chat_without_results(
 ):
     mock_create_embedding.return_value = [0.1] * 384
     mock_retrieve_chunks.return_value = []
+
     mock_generate_rag_response.return_value = (
         "I don't know based on the provided documents."
     )
@@ -95,7 +115,14 @@ def test_chat_without_results(
     )
     assert data["sources"] == []
 
-    mock_create_embedding.assert_called_once_with("What is this?")
+    mock_route_question.assert_called_once_with(
+        "What is this?"
+    )
+
+    mock_create_embedding.assert_called_once_with(
+        "What is this?"
+    )
+
     mock_generate_rag_response.assert_called_once_with(
         "What is this?",
         [],
@@ -106,7 +133,12 @@ def test_chat_without_results(
     "app.main.create_embedding",
     side_effect=Exception("Embedding failed"),
 )
+@patch(
+    "app.main.route_question",
+    return_value="DOCUMENT",
+)
 def test_chat_handles_embedding_error(
+    mock_route_question,
     mock_create_embedding,
     client,
 ):
@@ -116,13 +148,18 @@ def test_chat_handles_embedding_error(
     )
 
     assert response.status_code == 500
-    assert response.json()["detail"] == "Failed to process chat request"
+    assert response.json()["detail"] == "Embedding failed"
 
 
 @patch("app.main.generate_rag_response")
 @patch("app.main.retrieve_chunks")
 @patch("app.main.create_embedding")
+@patch(
+    "app.main.route_question",
+    return_value="DOCUMENT",
+)
 def test_chat_with_document_filter(
+    mock_route_question,
     mock_create_embedding,
     mock_retrieve_chunks,
     mock_generate_rag_response,
@@ -156,6 +193,10 @@ def test_chat_with_document_filter(
         "I don't know based on the provided documents."
     )
 
+    mock_route_question.assert_called_once_with(
+        "What is this document about?"
+    )
+
     mock_create_embedding.assert_called_once_with(
         "What is this document about?"
     )
@@ -165,8 +206,11 @@ def test_chat_with_document_filter(
     call_args = mock_retrieve_chunks.call_args
 
     assert call_args.args[0] == [0.1] * 384
-    assert call_args.kwargs["top_k"] == 5
-    assert call_args.kwargs["score_threshold"] == 0.3
+    assert call_args.kwargs["top_k"] == settings.retrieval_top_k
+    assert (
+        call_args.kwargs["score_threshold"]
+        == settings.retrieval_score_threshold
+    )
     assert call_args.kwargs["document_ids"] == [42]
 
     mock_generate_rag_response.assert_called_once_with(

@@ -149,7 +149,7 @@ def test_get_chunks(client, db):
 # ---------------------------------------------------------
 
 @patch("app.main.delete_document_vectors")
-@patch("app.main.index.upsert")
+@patch("app.main.upsert_vectors")
 @patch("app.main.create_embeddings")
 def test_update_document(
     mock_create_embeddings,
@@ -267,7 +267,7 @@ def test_delete_document_not_found(
 # ---------------------------------------------------------
 
 @patch("app.main.PdfReader")
-@patch("app.main.index.upsert")
+@patch("app.main.upsert_vectors")
 @patch("app.main.create_embeddings")
 def test_upload_pdf(
     mock_create_embeddings,
@@ -515,7 +515,7 @@ def test_search_requires_query(client):
 
     assert response.status_code == 422
 
-@patch("app.main.index.upsert")
+@patch("app.main.upsert_vectors")
 @patch("app.main.create_embeddings")
 @patch("app.main.PdfReader")
 def test_upload_pdf_removes_null_characters(
