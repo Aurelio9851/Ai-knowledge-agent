@@ -1,5 +1,3 @@
-Sì. Visto che ora abbiamo aggiunto il **query router**, aggiornerei README in tre punti principali:
-
 A full-stack AI knowledge assistant built around a Retrieval-Augmented Generation (RAG) pipeline with an intelligent query routing layer.
 
 The application allows users to upload documents, process them into searchable chunks, retrieve relevant information using vector similarity search, and ask questions about the stored knowledge base.
